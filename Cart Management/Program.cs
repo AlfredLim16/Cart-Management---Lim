@@ -13,7 +13,7 @@
                         addToCart();
                     break;
                     case 1:
-                        Console.WriteLine("View Cart");
+                        viewCart();
                     break;
                     case 2:
                         Console.WriteLine("");
@@ -58,6 +58,11 @@
             {
                 Console.WriteLine("Item failed to add to cart!!");
             }
+        }
+
+        static void viewCart()
+        {
+
         }
     }
 }
