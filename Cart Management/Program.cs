@@ -326,29 +326,6 @@ namespace Cart_Management
                 case 3:
                     viewItemInCart();
                     break;
-                case 4:
-                    searchItemInInventory();
-                    break;
-                case 5:
-                    editItemFromCart();
-                    break;
-                case 6:
-                    removeItemFromCart();
-                    break;
-                case 7:
-                    clearAllItemFromCart();
-                    break;
-                //remove those code for this Action since it's still bug
-                case 8:
-                    undoAction();
-                    break;
-                //remove those code for this Action since it's still bug
-                case 9:
-                    redoAction();
-                    break;
-                case 0:
-                    exitAction();
-                    break;
             }
         }
         private void addItemToInventory()
