@@ -2,6 +2,55 @@
 {
     internal class Program
     {
+        class Item
+        {
+            public required string name
+            {
+                get;
+                set;
+            }
+            public decimal price
+            {
+                get;
+                set;
+            }
+            public int stock
+            {
+                get;
+                set;
+            }
+        }
+        class cartItem
+        {
+            public required Item product
+            {
+                get;
+                set;
+            }
+            public int quantity
+            {
+                get;
+                set;
+            }
+        }
+        class actionHistory
+        {
+            public required string actionType
+            {
+                get;
+                set;
+            }
+            public required cartItem affectedCartItem
+            {
+                get;
+                set;
+            }
+            public int previousQuantity
+            {
+                get;
+                set;
+            }
+        }
         static void Main(string[] args)
         {                    
             int choice = 0;
