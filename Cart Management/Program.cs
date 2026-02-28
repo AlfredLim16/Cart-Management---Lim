@@ -51,9 +51,36 @@
                 set;
             }
         }
+        class inventoryManager
+        {
+            private List<Item> inventory = new List<Item>();
+            public IReadOnlyList<Item> GetInventory() => inventory.AsReadOnly();
+
+            public void addItem(string name, decimal price, int stock)
+            {
+                inventory.Add(new Item { name = name, price = price, stock = stock });
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Item added.");
+                Console.ResetColor();
+            }
+            public void Search(string keyword)
+            {
+                var results = inventory.FindAll(i => i.name.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+                if (results.Count == 0)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("No items found.");
+                    Console.ResetColor();
+                    return;
+                }
+                Console.WriteLine("Search results:");
+                foreach (var item in results)
+                    Console.WriteLine($"{item.name} | Price: {item.price} | Stock: {item.stock}");
+            }
+        }
         static void Main(string[] args)
         {                    
-            int choice = 0;
+            byte choice = 0;
             while(choice != 3)
             {
                 switch (choice)
