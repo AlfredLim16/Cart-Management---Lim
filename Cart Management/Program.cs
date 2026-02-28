@@ -1,4 +1,6 @@
-﻿namespace Cart_Management
+﻿using System;
+using System.Collections.Generic;
+namespace Cart_Management
 {
     class Item
     {
@@ -85,6 +87,7 @@
 
         public void addToCart(Item item, int quantity)
         {
+            // Cart Limit = 10
             if (cart.Count >= 10)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -92,6 +95,7 @@
                 Console.ResetColor();
                 return;
             }
+            // if adding but no stock
             if (item.stock < quantity)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -307,26 +311,101 @@
     }
     class consoleUserInterface
     {
+        private readonly inventoryManager inventory;
+        private readonly cartManager cart;
+
+        public consoleUserInterface(inventoryManager inv, cartManager c)
+        {
+            inventory = inv;
+            cart = c;
+        }
+        //a function for getting input in a data type Byte
+        private byte getByteInput(string prompt, int min = byte.MinValue, int max = byte.MaxValue)
+        {
+            int value;
+            while (true)
+            {
+                Console.Write(prompt);
+                string? input = Console.ReadLine();
+                if (int.TryParse(input, out value) && value >= min && value <= max)
+                    return (byte)value;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Invalid input!!. Please enter a number between {min} and {max}.");
+                Console.ResetColor();
+            }
+        }
+        // a function for getting input in a data type Int
+        private int getIntInput(string prompt, int min = int.MinValue, int max = int.MaxValue)
+        {
+            int value;
+            while (true)
+            {
+                Console.Write(prompt);
+                string? input = Console.ReadLine();
+                if (int.TryParse(input, out value) && value >= min && value <= max)
+                    return value;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Invalid input!!. Please enter a number between {min} and {max}.");
+                Console.ResetColor();
+            }
+        }
+        // a function for getting input in a data type Decimal
+        private decimal getDecimalInput(string prompt, decimal min = decimal.MinValue, decimal max = decimal.MaxValue)
+        {
+            decimal value;
+            while (true)
+            {
+                Console.Write(prompt);
+                string? input = Console.ReadLine();
+                if (decimal.TryParse(input, out value) && value >= min && value <= max)
+                    return value;
+                Console.WriteLine($"Invalid input!!. Please enter a decimal number between {min} and {max}.");
+            }
+        }
+        // a function for getting input in a data type String
+        private string getStringInput(string prompt)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                string? input = Console.ReadLine();
+                if (!string.IsNullOrWhiteSpace(input))
+                    return input.Trim();
+                Console.WriteLine("Invalid input!!. Please enter a non-empty string.");
+            }
+        }
+        public void run()
+        {
+            // changes: int earlier but now it's byte since choice is only for 0-9
+            byte choice;
+            do
+            {
+                displayMenu();
+                choice = getChoice();
+                handleChoice(choice);
+            } while (choice != 0);
+        }
         private void displayMenu()
         {
             Console.WriteLine("\n====================================");
             Console.WriteLine("Cart Management");
-            Console.WriteLine("1. Add Item to Inventory");
-            Console.WriteLine("2. Add Item to Cart");
-            Console.WriteLine("3. View Cart");
-            Console.WriteLine("4. Search Inventory");
-            Console.WriteLine("5. Edit Cart Item");
-            Console.WriteLine("6. Remove Cart Item");
-            Console.WriteLine("7. Clear All Item in Cart");
-            Console.WriteLine("8. Undo");
-            Console.WriteLine("9. Redo");
-            Console.WriteLine("0. Exit");
+            Console.WriteLine("[1]. Add Item to Inventory");
+            Console.WriteLine("[2]. Add Item to Cart");
+            Console.WriteLine("[3]. View Cart");
+            Console.WriteLine("[4]. Search Inventory");
+            Console.WriteLine("[5]. Edit Cart Item");
+            Console.WriteLine("[6]. Remove Cart Item");
+            Console.WriteLine("[7]. Clear All Item in Cart");
+            Console.WriteLine("[8]. Undo");
+            Console.WriteLine("[9]. Redo");
+            Console.WriteLine("[0]. Exit");
             Console.WriteLine("====================================\n");
         }
         private byte getChoice()
         {
             while (true)
             {
+                // choice in 1-9
                 Console.Write("Choose: ");
                 string? input = Console.ReadLine();
                 if (byte.TryParse(input, out byte choice) && choice >= 0 && choice <= 9)
@@ -375,8 +454,14 @@
     }
     internal class Program
     {
+            // after running the program it will create var inventory based on the class inventoryManager,
+            // cart based on class cartManager, and console based on consoleUserInterface. it will run using run()
             static void Main(string[] args)
-            {                    
+            {
+                var inventory = new inventoryManager();
+                var cart = new cartManager();
+                var console = new consoleUserInterface(inventory, cart);
+                console.run();
         }
     }
 }
