@@ -305,29 +305,78 @@
 
         }
     }
+    class consoleUserInterface
+    {
+        private void displayMenu()
+        {
+            Console.WriteLine("\n====================================");
+            Console.WriteLine("Cart Management");
+            Console.WriteLine("1. Add Item to Inventory");
+            Console.WriteLine("2. Add Item to Cart");
+            Console.WriteLine("3. View Cart");
+            Console.WriteLine("4. Search Inventory");
+            Console.WriteLine("5. Edit Cart Item");
+            Console.WriteLine("6. Remove Cart Item");
+            Console.WriteLine("7. Clear All Item in Cart");
+            Console.WriteLine("8. Undo");
+            Console.WriteLine("9. Redo");
+            Console.WriteLine("0. Exit");
+            Console.WriteLine("====================================\n");
+        }
+        private byte getChoice()
+        {
+            while (true)
+            {
+                Console.Write("Choose: ");
+                string? input = Console.ReadLine();
+                if (byte.TryParse(input, out byte choice) && choice >= 0 && choice <= 9)
+                    return choice;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid choice. Please enter 1–9.");
+                Console.ResetColor();
+            }
+        }
+        private void handleChoice(byte choice)
+        {
+            switch (choice)
+            {
+                case 1:
+                    addItemToInventory();
+                    break;
+                case 2:
+                    addItemToCart();
+                    break;
+                case 3:
+                    viewItemInCart();
+                    break;
+                case 4:
+                    searchItemInInventory();
+                    break;
+                case 5:
+                    editItemFromCart();
+                    break;
+                case 6:
+                    removeItemFromCart();
+                    break;
+                case 7:
+                    clearAllItemFromCart();
+                    break;
+                case 8:
+                    undoAction();
+                    break;
+                case 9:
+                    redoAction();
+                    break;
+                case 0:
+                    exitAction();
+                    break;
+            }
+        }
+    }
     internal class Program
     {
             static void Main(string[] args)
             {                    
-            byte choice = 0;
-            while(choice != 3)
-            {
-                switch (choice)
-                {
-                    case 0:
-                        addToCart();
-                    break;
-                    case 1:
-                        viewCart();
-                    break;
-                    case 2:
-                        Console.WriteLine("");
-                    break;
-                    case 3:
-                        Console.WriteLine("Exit");
-                    break;
-                }
-            }
         }
     }
 }
