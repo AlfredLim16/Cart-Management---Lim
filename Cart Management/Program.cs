@@ -82,8 +82,6 @@ namespace Cart_Management
     {
         private List<cartItem> cart = new List<cartItem>();
         public IReadOnlyList<cartItem> GetCart() => cart.AsReadOnly();
-        private Stack<actionHistory> undoStack = new Stack<actionHistory>();
-        private Stack<actionHistory> redoStack = new Stack<actionHistory>();
 
         public void addToCart(Item item, int quantity)
         {
@@ -108,9 +106,6 @@ namespace Cart_Management
             var cartItem = new cartItem { product = item, quantity = quantity };
             cart.Add(cartItem);
 
-            undoStack.Push(new actionHistory { actionType = "Add", affectedCartItem = cartItem });
-            redoStack.Clear();
-
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Added!");
             Console.ResetColor();
@@ -130,10 +125,12 @@ namespace Cart_Management
                 return;
             }
 
+            // sorting the item in cart
             IEnumerable<cartItem> sortedCart = cart;
 
             switch (sortBy.ToLower())
             {
+                // sorting it by name, price and quantity
                 case "name":
                     sortedCart = cart.OrderBy(c => c.product.name);
                     break;
@@ -187,14 +184,6 @@ namespace Cart_Management
             selectedCartItem.product.stock -= diff;
             selectedCartItem.quantity = newQty;
 
-            undoStack.Push(new actionHistory
-            {
-                actionType = "Edit",
-                affectedCartItem = selectedCartItem,
-                previousQuantity = currentQty
-            });
-            redoStack.Clear();
-
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Cart updated.");
             Console.ResetColor();
@@ -213,101 +202,10 @@ namespace Cart_Management
             selectedCartItem.product.stock += selectedCartItem.quantity;
             cart.RemoveAt(index);
 
-            undoStack.Push(new actionHistory { actionType = "Remove", affectedCartItem = selectedCartItem });
-            redoStack.Clear();
-
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Item removed!");
             Console.ResetColor();
-        }
-        public void clearCart()
-        {
-            foreach (var c in cart)
-            {
-                c.product.stock += c.quantity;
-            }
-            cart.Clear();
-            undoStack.Clear();
-            redoStack.Clear();
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Cart cleared!");
-            Console.ResetColor();
-        }
-        public void undo()
-        {
-            if (undoStack.Count == 0)
-            {
-                Console.WriteLine("Nothing to undo.");
-                return;
-            }
-
-            var lastAction = undoStack.Pop();
-            redoStack.Push(lastAction);
-
-            if (lastAction.actionType == "Add")
-            {
-                cart.Remove(lastAction.affectedCartItem);
-                lastAction.affectedCartItem.product.stock += lastAction.affectedCartItem.quantity;
-                Console.WriteLine("Undo: Add reverted.");
-            }
-            else if (lastAction.actionType == "Remove")
-            {
-                cart.Add(lastAction.affectedCartItem);
-                lastAction.affectedCartItem.product.stock -= lastAction.affectedCartItem.quantity;
-                Console.WriteLine("Undo: Remove reverted.");
-            }
-            else if (lastAction.actionType == "Edit")
-            {
-                int diff = lastAction.previousQuantity - lastAction.affectedCartItem.quantity;
-                lastAction.affectedCartItem.product.stock += diff;
-                lastAction.affectedCartItem.quantity = lastAction.previousQuantity;
-                Console.WriteLine("Undo: Edit reverted.");
-            }
-        }
-        public void redo()
-        {
-            if (redoStack.Count == 0)
-            {
-                Console.WriteLine("Nothing to redo.");
-                return;
-            }
-
-            var lastAction = redoStack.Pop();
-            undoStack.Push(lastAction);
-
-            if (lastAction.actionType == "Add")
-            {
-                cart.Add(lastAction.affectedCartItem);
-                lastAction.affectedCartItem.product.stock -= lastAction.affectedCartItem.quantity;
-                Console.WriteLine("Redo: Add reapplied Sucessfully.");
-            }
-            else if (lastAction.actionType == "Remove")
-            {
-                cart.Remove(lastAction.affectedCartItem);
-                lastAction.affectedCartItem.product.stock += lastAction.affectedCartItem.quantity;
-                Console.WriteLine("Redo: Remove reapplied Successfuly.");
-            }
-            else if (lastAction.actionType == "Edit")
-            {
-                int currentQty = lastAction.affectedCartItem.quantity;
-                int diff = currentQty - lastAction.previousQuantity;
-
-                if (lastAction.affectedCartItem.product.stock >= diff)
-                {
-                    lastAction.affectedCartItem.product.stock -= diff;
-                    lastAction.affectedCartItem.quantity = currentQty;
-                    Console.WriteLine("Redo: Edit reapplied Successfully.");
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Redo failed: Not enough stock to reapply edit.");
-                    Console.ResetColor();
-                }
-            }
-
-        }
+        }       
     }
     class consoleUserInterface
     {
@@ -440,9 +338,11 @@ namespace Cart_Management
                 case 7:
                     clearAllItemFromCart();
                     break;
+                //remove those code for this Action since it's still bug
                 case 8:
                     undoAction();
                     break;
+                //remove those code for this Action since it's still bug
                 case 9:
                     redoAction();
                     break;
