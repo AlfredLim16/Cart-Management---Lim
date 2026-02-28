@@ -351,6 +351,43 @@ namespace Cart_Management
                     break;
             }
         }
+        private void addItemToInventory()
+        {
+            string name = getStringInput("Item name: ");
+            decimal price = getDecimalInput("Price: ", 0);
+            int stock = getIntInput("Stock: ", 0);
+            inventory.addItem(name, price, stock);
+        }
+        private void addItemToCart()
+        {
+            var items = inventory.GetInventory();
+            if (items.Count == 0)
+            {
+                Console.WriteLine("No inventory.");
+                return;
+            }
+            for (int i = 0; i < items.Count; i++)
+                Console.WriteLine($"{i + 1}. {items[i].name} | {items[i].price} | Stock: {items[i].stock}");
+
+            int index = getIntInput("Select item: ", 1, items.Count) - 1;
+            int qty = getIntInput("Quantity: ", 1, items[index].stock);
+            cart.addToCart(items[index], qty);
+        }
+        private void viewItemInCart()
+        {
+            Console.WriteLine("Sort by: 1-Name, 2-Price, 3-Quantity");
+            byte sortChoice = getByteInput("Choose sort option: ", 1, 3);
+
+            string sortBy = sortChoice switch
+            {
+                1 => "name",
+                2 => "price",
+                3 => "quantity",
+                _ => "name"
+            };
+
+            cart.ViewCart(sortBy);
+        }
     }
     internal class Program
     {
