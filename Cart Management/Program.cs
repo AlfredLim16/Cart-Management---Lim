@@ -154,6 +154,157 @@
                     Console.ResetColor();
                 }
             }
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"Total: {total}");
+            Console.ResetColor();
+        }
+        public void editCartItem(int index, int newQty)
+        {
+            if (index < 0 || index >= cart.Count)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid cart item index.");
+                Console.ResetColor();
+                return;
+            }
+
+            var selectedCartItem = cart[index];
+            int currentQty = selectedCartItem.quantity;
+            int diff = newQty - currentQty;
+
+            if (diff > selectedCartItem.product.stock)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Not enough stock.");
+                Console.ResetColor();
+                return;
+            }
+
+            selectedCartItem.product.stock -= diff;
+            selectedCartItem.quantity = newQty;
+
+            undoStack.Push(new actionHistory
+            {
+                actionType = "Edit",
+                affectedCartItem = selectedCartItem,
+                previousQuantity = currentQty
+            });
+            redoStack.Clear();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Cart updated.");
+            Console.ResetColor();
+        }
+        public void removeCartItem(int index)
+        {
+            if (index < 0 || index >= cart.Count)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid cart item index.");
+                Console.ResetColor();
+                return;
+            }
+
+            var selectedCartItem = cart[index];
+            selectedCartItem.product.stock += selectedCartItem.quantity;
+            cart.RemoveAt(index);
+
+            undoStack.Push(new actionHistory { actionType = "Remove", affectedCartItem = selectedCartItem });
+            redoStack.Clear();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Item removed!");
+            Console.ResetColor();
+        }
+        public void clearCart()
+        {
+            foreach (var c in cart)
+            {
+                c.product.stock += c.quantity;
+            }
+            cart.Clear();
+            undoStack.Clear();
+            redoStack.Clear();
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Cart cleared!");
+            Console.ResetColor();
+        }
+        public void undo()
+        {
+            if (undoStack.Count == 0)
+            {
+                Console.WriteLine("Nothing to undo.");
+                return;
+            }
+
+            var lastAction = undoStack.Pop();
+            redoStack.Push(lastAction);
+
+            if (lastAction.actionType == "Add")
+            {
+                cart.Remove(lastAction.affectedCartItem);
+                lastAction.affectedCartItem.product.stock += lastAction.affectedCartItem.quantity;
+                Console.WriteLine("Undo: Add reverted.");
+            }
+            else if (lastAction.actionType == "Remove")
+            {
+                cart.Add(lastAction.affectedCartItem);
+                lastAction.affectedCartItem.product.stock -= lastAction.affectedCartItem.quantity;
+                Console.WriteLine("Undo: Remove reverted.");
+            }
+            else if (lastAction.actionType == "Edit")
+            {
+                int diff = lastAction.previousQuantity - lastAction.affectedCartItem.quantity;
+                lastAction.affectedCartItem.product.stock += diff;
+                lastAction.affectedCartItem.quantity = lastAction.previousQuantity;
+                Console.WriteLine("Undo: Edit reverted.");
+            }
+        }
+        public void redo()
+        {
+            if (redoStack.Count == 0)
+            {
+                Console.WriteLine("Nothing to redo.");
+                return;
+            }
+
+            var lastAction = redoStack.Pop();
+            undoStack.Push(lastAction);
+
+            if (lastAction.actionType == "Add")
+            {
+                cart.Add(lastAction.affectedCartItem);
+                lastAction.affectedCartItem.product.stock -= lastAction.affectedCartItem.quantity;
+                Console.WriteLine("Redo: Add reapplied Sucessfully.");
+            }
+            else if (lastAction.actionType == "Remove")
+            {
+                cart.Remove(lastAction.affectedCartItem);
+                lastAction.affectedCartItem.product.stock += lastAction.affectedCartItem.quantity;
+                Console.WriteLine("Redo: Remove reapplied Successfuly.");
+            }
+            else if (lastAction.actionType == "Edit")
+            {
+                int currentQty = lastAction.affectedCartItem.quantity;
+                int diff = currentQty - lastAction.previousQuantity;
+
+                if (lastAction.affectedCartItem.product.stock >= diff)
+                {
+                    lastAction.affectedCartItem.product.stock -= diff;
+                    lastAction.affectedCartItem.quantity = currentQty;
+                    Console.WriteLine("Redo: Edit reapplied Successfully.");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Redo failed: Not enough stock to reapply edit.");
+                    Console.ResetColor();
+                }
+            }
+
+        }
+    }
     internal class Program
     {
             static void Main(string[] args)
