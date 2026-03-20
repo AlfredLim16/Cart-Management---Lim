@@ -1,137 +1,166 @@
-﻿using CartManagementBusinessLogic;
+﻿using CartManagementBusinessLogic.Managers;
+using CartManagementBusinessLogic.Rules;
+using CartManagementBusinessLogic.Services;
+using CartManagementDataLogic;
 using CartManagementModels;
-using System.Text;
-namespace Cart_Management
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+
+namespace CartManagementApp
 {
     internal class Program
     {
-        private static CartService cartService = new CartService();
-        private static Guid userId = Guid.NewGuid();
+        private static CartService? cartService;
+        static Cart? cart;
 
-        private static void checkout()
+        private static void Main(string[] args)
         {
-            cartService.checkout(userId);
+            Setup();
+            runMenu();
         }
-        private static void removeCartItem()
+        private static void Setup()
         {
-            var userCartLogic = cartService.getUserCartLogic(userId);
-            var userCart = userCartLogic.cart.Find(c => c.UserId == userId);
-            if (userCart == null || userCart.Items.Count == 0)
-            {
-                Console.WriteLine("Cart is empty.\n");
-                return;
-            }
+            ICartDataLogic dataLogic = new InMemoryCartData();
+            CartRules cartRules = new CartRules();
+            CartManager cartManager = new CartManager(dataLogic, cartRules);
+            cartService = new CartService(cartManager);
 
-            Console.Write("Enter item number to remove: ");
-            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= userCart.Items.Count)
+            cart = new Cart
             {
-                var item = userCart.Items[index - 1];
-                cartService.removeItemFromCart(userId, item.ProductId);
-                Console.WriteLine($"Item '{item.Name}' removed!\n");
-            }
-            else
+                CartId = Guid.NewGuid(),
+                Items = new List<CartItem>(),
+                Threshold = 100
+            };
+            cartService.Create(cart);
+        }
+        private static void runMenu()
+        {
+            bool exit = false;
+            while (!exit)
             {
-                Console.WriteLine("Invalid item number.\n");
+                Console.WriteLine("\nCart Menu");
+                Console.WriteLine("1. View Cart");
+                Console.WriteLine("2. Add Item");
+                Console.WriteLine("3. Remove Item");
+                Console.WriteLine("4. Clear Cart");
+                Console.WriteLine("5. Cart Summary");
+                Console.WriteLine("0. Exit");
+                Console.Write("Choose an option: ");
+                string choice = Console.ReadLine() ?? "";
+
+                switch (choice)
+                {
+                    case "1":
+                        viewCart();
+                        break;
+                    case "2":
+                        addItem();
+                        break;
+                    case "3":
+                        removeItem();
+                        break;
+                    case "4":
+                        clearCart();
+                        break;
+                    case "5":
+                        showCartSummary();
+                        break;
+                    case "0":
+                        exit = true;
+                        Console.WriteLine("Exiting...");
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice, try again.");
+                        break;
+                }
             }
         }
         private static void viewCart()
         {
-            cartService.displayCart(userId);
-        }
-        private static void addProductToCart()
-        {
-            try
+            var currentCart = cartService?.Get(cart?.CartId ?? Guid.Empty);
+            Console.WriteLine($"\nCart ID: {currentCart?.CartId}");
+            Console.WriteLine($"Threshold: {currentCart?.Threshold}");
+            Console.WriteLine("Items:");
+            foreach (var item in currentCart?.Items ?? new List<CartItem>())
             {
-                Console.Write(" Product Name: ");
-                string name = Console.ReadLine()!;
-                Console.Write(" Quantity: ");
-                int qty = int.Parse(Console.ReadLine()!);
-                Console.Write(" Price: ");
-                decimal price = decimal.Parse(Console.ReadLine()!);
+                Console.WriteLine($"ID: {item.CartItemId} | Product: {item.ProductName} | Qty: {item.Quantity} | Price: {item.Price.ToString("C")}");
+            }
+        }
+        private static void clearCart()
+        {
+            cartService?.Clear(cart?.CartId ?? Guid.Empty);
+            Console.WriteLine("Cart cleared!");
+        }
+        private static void addItem()
+        {
+            Console.Write("Enter product name: ");
+            string name = Console.ReadLine() ?? "Unknown";
+            Console.Write("Enter quantity: ");
+            byte qty = byte.TryParse(Console.ReadLine(), out var q) ? q : (byte)1;
+            Console.Write("Enter price: ");
+            decimal price = decimal.TryParse(Console.ReadLine(), out var p) ? p : 0;
 
-                var item = new CartItemModel
-                {
-                    ProductId = Guid.NewGuid(),
-                    Name = name,
-                    Quantity = qty,
-                    Price = price
-                };
+            CartItem newItem = new CartItem
+            {
+                CartItemId = Guid.NewGuid(),
+                ProductName = name,
+                Quantity = qty,
+                Price = price
+            };
 
-                cartService.addItemToCart(userId, item);
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($" Product {name} added to cart!\n");
-                Console.ResetColor();
-            }
-            catch (ArgumentException ex)
+            if (cartService?.WithinThreshold(cart?.CartId ?? Guid.Empty, newItem) == true)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($" [!] Error: {ex.Message}");
-                Console.ResetColor();
+                cartService?.AddItem(cart?.CartId ?? Guid.Empty, newItem);
+                Console.WriteLine("Item added!");
             }
-            catch (Exception ex)
+            else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($" [!] Unexpected error: {ex.Message}");
-                Console.ResetColor();
+                Console.WriteLine("Cannot add item: threshold exceeded!");
             }
         }
-        private static void handleChoice(byte choice)
+        private static void removeItem()
         {
-            switch (choice)
+            var cartId = cart?.CartId ?? Guid.Empty;
+            var items = cartService?.GetItems(cartId) ?? new List<CartItem>();
+
+            if (items.Count == 0)
             {
-                case 1:
-                    addProductToCart();
-                    break;
-                case 2:
-                    viewCart();
-                    break;
-                case 3:
-                    removeCartItem();
-                    break;
-                case 4:
-                    checkout();
-                    break;
+                Console.WriteLine("\nCart is empty. Nothing to remove.");
+                return;
+            }
+            Console.WriteLine("\nList of Items in Cart:");
+            foreach (var item in items)
+            {
+                Console.WriteLine($"ID: {item.CartItemId} | Product: {item.ProductName} | Qty: {item.Quantity} | Price: {item.Price.ToString("C")}");
+            }
+
+            Console.Write("\nEnter CartItemId to remove: ");
+            string idInput = Console.ReadLine() ?? "";
+            if (Guid.TryParse(idInput, out var itemId))
+            {
+                cartService?.RemoveItem(cartId, itemId);
+                Console.WriteLine("Item removed!");
+            }
+            else
+            {
+                Console.WriteLine("Invalid ID format.");
             }
         }
-        private static byte getChoice()
+        private static void showCartSummary()
         {
-            while (true)
-            {
-                Console.Write("\n Choose: ");
-                string? input = Console.ReadLine();
-                if (byte.TryParse(input, out byte choice) && choice >= 0 && choice <= 4)
-                    return choice;
-                Console.WriteLine("Invalid choice. Please enter 0–4.");
-            }
-        }
-        private static void displayMenu()
-        {
-            Console.WriteLine(" " + new string('=', 47));
-            Console.WriteLine(" " + new string(' ', 12) + "CART MANAGEMENT MENU");
-            Console.WriteLine(" " +new string('-', 47));
-            Console.WriteLine(" [1]. Add Item to Cart");
-            Console.WriteLine(" [2]. View Cart");
-            Console.WriteLine(" [3]. Remove Cart Item");
-            Console.WriteLine(" [4]. Checkout");
-            Console.WriteLine(" [0]. Exit");
-            Console.WriteLine(" " + new string('=', 47));
-        }
-        private static void runProgram()
-        {
-            byte choice;
-            do
-            {
-                displayMenu();
-                choice = getChoice();
-                handleChoice(choice);
-            } while (choice != 0);
-        }
-        static void Main(string[] args)
-        {
-            Console.OutputEncoding = Encoding.UTF8;
-            runProgram();
+            Console.WriteLine("\nCart Summary");
+            var cartId = cart?.CartId ?? Guid.Empty;
+
+            byte totalItems = (byte)(cartService?.GetItemCount(cartId) ?? 0);
+            decimal cartTotal = cartService?.GetTotal(cartId) ?? 0;
+            bool isEmpty = cartService?.IsEmpty(cartId) ?? true;
+            byte remainingThreshold = cartService?.GetThreshold(cartId) ?? 0;
+
+            Console.WriteLine($"Total Items       : {totalItems}");
+            Console.WriteLine($"Cart Total        : {cartTotal.ToString("C")}");
+            Console.WriteLine($"Cart Status       : {(isEmpty ? "Empty" : "Has Items")}");
+            Console.WriteLine($"Remaining Capacity: {remainingThreshold}");
         }
     }
 }
-// NEXT TIME: I will Separate the exceptions
-// NEXT TIME: I will add update item quantity functionality

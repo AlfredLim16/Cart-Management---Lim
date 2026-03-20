@@ -1,90 +1,81 @@
-﻿using CartManagementDataLogic;
-using CartManagementModels;
-using System.Globalization;
-namespace CartManagementBusinessLogic
+﻿using CartManagementModels;
+using CartManagementBusinessLogic.Managers;
+using System;
+using System.Collections.Generic;
+
+namespace CartManagementBusinessLogic.Services
 {
     public class CartService
     {
-        public List<CartLogic> cartLogic = new List<CartLogic>();
-        public CartRules cartRules = new CartRules();
-        public CartItemRules cartItemRules = new CartItemRules();
-        public CultureInfo philippineCurrency = new CultureInfo("fil-PH");
-        
-        public CartService()
+        CartManager _cartManager;
+
+        public CartService(CartManager cartManager)
         {
-            cartLogic = new List<CartLogic>();
-            cartRules = new CartRules();
+            _cartManager = cartManager;
         }
-        public CartLogic getUserCartLogic(Guid userId)
+        public Cart Create(Cart cart)
         {
-            /* Check if user already has a cart and return it, 
-               otherwise create a new one to ensure that each user has their own cart to manage their cart operations */
-            var userCartLogic = cartLogic.FirstOrDefault(c => c.cart.Any(cart => cart.UserId == userId));
-            if (userCartLogic == null)
-            {
-                userCartLogic = new CartLogic();
-                userCartLogic.cart.Add(new CartModel
-                {
-                    CartId = Guid.NewGuid(),
-                    UserId = userId
-                });
-                cartLogic.Add(userCartLogic);
-            }
-            return userCartLogic;
+            return _cartManager.Create(cart);
         }
-        public void addItemToCart(Guid userId, CartItemModel item)
+        public Cart? Get(Guid cartId)
         {
-            cartRules.validateCart(new List<CartItemModel> { item });
-            if (!cartItemRules.validateMaxinumCartItemQuantity(item.Quantity, 99))
-            {
-                throw new ArgumentException(" Quantity exceeds maximum allowed per item (max: 99).");
-            }
-            var userCartLogic = getUserCartLogic(userId);
-            userCartLogic.addItem(userId, item);
+            return _cartManager.Get(cartId);
         }
-        public void removeItemFromCart(Guid userId, Guid productId)
+        public List<Cart> GetAll()
         {
-            var userCartLogic = getUserCartLogic(userId);
-            userCartLogic.removeItem(userId, productId);
+            return _cartManager.GetAll();
         }
-        public decimal getCartTotal(Guid userId)
+        public void Update(Cart cart)
         {
-            var userCartLogic =getUserCartLogic(userId);
-            return userCartLogic.computationOfTotal(userId);
+            _cartManager.Update(cart);
         }
-        public void displayCart(Guid userId)
+        public void Delete(Guid cartId)
         {
-            var userCartLogic = getUserCartLogic(userId);
-            var userCart = userCartLogic.cart.Find(c => c.UserId == userId);
-            if (userCart == null || userCart.Items.Count == 0)
-            {
-                Console.WriteLine("Cart is empty.\n");
-                return;
-            }
-            
-            Console.WriteLine(" Your Cart:");
-            Console.WriteLine($"{" No.",-6} {"Name",-13} {"Qty",-5} {"Price",-10} {"Subtotal",-13}");
-            for (int i = 0; i < userCart.Items.Count; i++)
-            {
-                var item = userCart.Items[i];
-                Console.WriteLine($" {i + 1,-5} {item.Name,-13} {item.Quantity,-5} {item.Price.ToString("C", philippineCurrency),-10} {(item.Quantity * item.Price).ToString("C", philippineCurrency),-13}");
-            }
-            var total = getCartTotal(userId);
-            Console.WriteLine(" " + new string('-', 47));
-            Console.WriteLine($"{" ", -6} {"Total:",-17} {total.ToString("C", philippineCurrency)}\n");
+            _cartManager.Delete(cartId);
         }
-        public void checkout(Guid userId, decimal minimumOrderAmount = 500)
+        public void Clear(Guid cartId)
         {
-            var total = getCartTotal(userId);
-            if (!cartRules.validateMinimumOrder(total, minimumOrderAmount))
-            {
-                Console.WriteLine($" Order must be at least {minimumOrderAmount.ToString("C", philippineCurrency)}.\n");
-                return;
-            }
-            Console.WriteLine($" Checkout successful! Total: {total.ToString("C", philippineCurrency)}\n");
-            var userCartLogic = getUserCartLogic(userId);
-            var userCart = userCartLogic.cart.Find(c => c.UserId == userId);
-            userCart?.Items.Clear();
+            _cartManager.Clear(cartId);
+        }
+        public void AddItem(Guid cartId, CartItem item)
+        {
+            _cartManager.AddItem(cartId, item);
+        }
+        public void RemoveItem(Guid cartId, Guid cartItemId)
+        {
+            _cartManager.RemoveItem(cartId, cartItemId);
+        }
+        public List<CartItem> GetItems(Guid cartId)
+        {
+            return _cartManager.GetItems(cartId);
+        }
+        public int GetItemCount(Guid cartId)
+        {
+            return _cartManager.GetItemCount(cartId);
+        }
+        public decimal GetTotal(Guid cartId)
+        {
+            return _cartManager.GetTotal(cartId);
+        }
+        public bool ContainsItem(Guid cartId, Guid cartItemId)
+        {
+            return _cartManager.ContainsItem(cartId, cartItemId);
+        }
+        public bool IsEmpty(Guid cartId)
+        {
+            return _cartManager.IsEmpty(cartId);
+        }
+        public byte GetThreshold(Guid cartId)
+        {
+            return _cartManager.GetThreshold(cartId);
+        }
+        public void SetThreshold(Guid cartId, byte threshold)
+        {
+            _cartManager.SetThreshold(cartId, threshold);
+        }
+        public bool WithinThreshold(Guid cartId, CartItem item)
+        {
+            return _cartManager.WithinThreshold(cartId, item);
         }
     }
 }

@@ -1,44 +1,36 @@
 ﻿using CartManagementModels;
-namespace CartManagementBusinessLogic
+using CartManagementDataLogic;
+using CartManagementBusinessLogic.Exceptions;
+
+namespace CartManagementBusinessLogic.Rules
 {
     public class CartRules
     {
-        public bool validateCart(List<CartItemModel> items)
+        public void ValidateThreshold(Guid cartId, CartItem item, ICartDataLogic dataLogic)
         {
-            // cart must have at least one item and that each item has valid quantity and price
-            if (items == null || items.Count == 0)
+            var cart = dataLogic.Get(cartId);
+            if (cart != null)
             {
-                throw new ArgumentException("Cart must contain at least one item.");
-            }
-
-            foreach (var item in items)
-            {
-                if (int.TryParse(item.Name, out _))
+                int currentCount = cart.Items.Count;
+                if (currentCount + 1 > cart.Threshold)
                 {
-                    throw new ArgumentException("Cart Item name cannot be a number.");
-                }
-                if (item.Quantity <= 0)
-                {
-                    throw new ArgumentException($"Item '{item.Name}' has invalid quantity.");
-                }
-                if (item.Price < 0)
-                {
-                    throw new ArgumentException($"Item '{item.Name}' has invalid price.");
+                    throw new CartExceptions("Cart threshold exceeded!");
                 }
             }
-            return true;
         }
-        public decimal applyCartDiscount(decimal total, decimal discountPercentage)
+        public void ValidateQuantity(CartItem item)
         {
-            if (discountPercentage < 0 || discountPercentage > 100)
+            if (item.Quantity <= 0)
             {
-                throw new ArgumentException("Cart Discount must be between 0 and 100.");
+                throw new CartExceptions("Item quantity must be greater than zero.");
             }
-            return total * ((100 - discountPercentage) / 100);
         }
-        public bool validateMinimumOrder(decimal total, decimal minimumAmount)
+        public void ValidatePrice(CartItem item)
         {
-            return total >= minimumAmount;
+            if (item.Price <= 0)
+            {
+                throw new CartExceptions("Item price must be greater than zero.");
+            }
         }
     }
 }
