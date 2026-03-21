@@ -29,7 +29,7 @@ namespace CartManagementDataLogic
         void SetThreshold(Guid cartId, byte threshold);
         bool WithinThreshold(Guid cartId, CartItem item);
 
-        List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemId);
-        decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemId);
+        List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds);
+        decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemIds);
     }
 }

@@ -77,5 +77,13 @@ namespace CartManagementBusinessLogic.Services
         {
             return _cartManager.WithinThreshold(cartId, item);
         }
+        public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds)
+        {
+            return _cartManager.GetSelectedItems(cartId, cartItemIds);
+        }
+        public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemIds)
+        {
+            return _cartManager.GetSelectedTotal(cartId, cartItemIds);
+        }
     }
 }

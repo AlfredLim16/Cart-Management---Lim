@@ -31,7 +31,12 @@ namespace CartManagementDataLogic
         }
         public Cart? Get(Guid cartId)
         {
-            return dummyCarts.FirstOrDefault(c => c.CartId == cartId);
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
+            {
+                return cart;
+            }
+            return null;
         }
         public List<Cart> GetAll()
         {
@@ -39,78 +44,125 @@ namespace CartManagementDataLogic
         }
         public void Update(Cart cart)
         {
-            var existing = Get(cart.CartId);
-            if (existing != null)
+            var existingQuery = from existing in dummyCarts where existing.CartId == cart.CartId select existing;
+            foreach (var existing in existingQuery)
             {
                 existing.Items = cart.Items;
                 existing.Threshold = cart.Threshold;
+                break;
             }
         }
         public void Delete(Guid cartId)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            Cart? toRemove = null;
+            foreach (var cart in cartQuery)
             {
-                dummyCarts.Remove(cart);
+                toRemove = cart;
+                break;
+            }
+            if (toRemove != null)
+            {
+                dummyCarts.Remove(toRemove);
             }
         }
         public void Clear(Guid cartId)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
                 cart.Items.Clear();
+                break;
             }
         }
         public void AddItem(Guid cartId, CartItem item)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
                 cart.Items.Add(item);
+                break;
             }
         }
         public void RemoveItem(Guid cartId, Guid cartItemId)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
-                var item = cart.Items.FirstOrDefault(i => i.CartItemId == cartItemId);
-                if (item != null)
+                var cartItemQuery = from cartItem in cart.Items where cartItem.CartItemId == cartItemId select cartItem;
+                CartItem? toRemove = null;
+                foreach (var cartItem in cartItemQuery)
                 {
-                    cart.Items.Remove(item);
+                    toRemove = cartItem;
+                    break;
                 }
+                if (toRemove != null)
+                {
+                    cart.Items.Remove(toRemove);
+                }
+                break;
             }
         }
         public List<CartItem> GetItems(Guid cartId)
         {
-            var cart = Get(cartId);
-            return cart?.Items ?? new List<CartItem>();
+            var cartItemsQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items;
+            foreach (var cartItems in cartItemsQuery)
+            {
+                return cartItems;
+            }
+            return new List<CartItem>();
         }
         public int GetItemCount(Guid cartId)
         {
-            var cart = Get(cartId);
-            return cart?.Items.Count ?? 0;
+            var cartItemCountQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items.Count;
+            foreach (var count in cartItemCountQuery)
+            {
+                return count;
+            }
+            return 0;
         }
         public decimal GetTotal(Guid cartId)
         {
-            var cart = Get(cartId);
-            return cart?.Items.Sum(i => i.Price * i.Quantity) ?? 0;
+            var cartItemsQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items;
+            foreach (var cartItems in cartItemsQuery)
+            {
+                decimal total = 0;
+                foreach (var item in cartItems)
+                {
+                    total += item.Price * item.Quantity;
+                }
+                return total;
+            }
+            return 0;
         }
         public bool ContainsItem(Guid cartId, Guid cartItemId)
         {
-            var cart = Get(cartId);
-            return cart != null && cart.Items.Any(i => i.CartItemId == cartItemId);
+            var cartItemsQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items;
+            foreach (var cartItems in cartItemsQuery)
+            {
+                foreach (var cartItem in cartItems)
+                {
+                    if (cartItem.CartItemId == cartItemId)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
         public bool IsEmpty(Guid cartId)
         {
-            var cart = Get(cartId);
-            return cart == null || !cart.Items.Any();
+            var cartItemsQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items;
+            foreach (var cartItems in cartItemsQuery)
+            {
+                return cartItems.Count == 0;
+            }
+            return true;
         }
         public byte GetThreshold(Guid cartId)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
                 int currentCount = cart.Items.Count;
                 return (byte)Math.Max(0, cart.Threshold - currentCount);
@@ -119,35 +171,49 @@ namespace CartManagementDataLogic
         }
         public void SetThreshold(Guid cartId, byte threshold)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
                 cart.Threshold = threshold;
+                break;
             }
         }
         public bool WithinThreshold(Guid cartId, CartItem item)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartQuery = from cart in dummyCarts where cart.CartId == cartId select cart;
+            foreach (var cart in cartQuery)
             {
                 int currentCount = cart.Items.Count;
                 return currentCount + 1 <= cart.Threshold;
             }
             return false;
         }
-        public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemId)
+        public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds)
         {
-            var cart = Get(cartId);
-            if (cart != null)
+            var cartItemsQuery = from cart in dummyCarts where cart.CartId == cartId select cart.Items;
+            foreach (var cartItems in cartItemsQuery)
             {
-                return cart.Items.Where(i => cartItemId.Contains(i.CartItemId)).ToList();
+                List<CartItem> selectedCartItems = new List<CartItem>();
+                foreach (var cartItem in cartItems)
+                {
+                    if (cartItemIds.Contains(cartItem.CartItemId))
+                    {
+                        selectedCartItems.Add(cartItem);
+                    }
+                }
+                return selectedCartItems;
             }
             return new List<CartItem>();
         }
-        public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemId)
+        public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemIds)
         {
-            var selectedItems = GetSelectedItems(cartId, cartItemId);
-            return selectedItems.Sum(i => i.Price * i.Quantity);
+            var selectedItems = GetSelectedItems(cartId, cartItemIds);
+            decimal total = 0;
+            foreach (var cartItem in selectedItems)
+            {
+                total += cartItem.Price * cartItem.Quantity;
+            }
+            return total;
         }
     }
 }

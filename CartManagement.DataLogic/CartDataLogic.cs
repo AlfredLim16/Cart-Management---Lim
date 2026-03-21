@@ -76,13 +76,13 @@ namespace CartManagementDataLogic
         {
             return _dataLogic.WithinThreshold(cartId, item);
         }
-        public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemId)
+        public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds)
         {
-            return _dataLogic.GetSelectedItems(cartId, cartItemId);
+            return _dataLogic.GetSelectedItems(cartId, cartItemIds);
         }
-        public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemId)
+        public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemIds)
         {
-            return _dataLogic.GetSelectedTotal(cartId, cartItemId);
+            return _dataLogic.GetSelectedTotal(cartId, cartItemIds);
         }
     }
 }
