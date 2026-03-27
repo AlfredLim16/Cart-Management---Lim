@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11520.95 d18.3
+VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart Management", "Cart Management.csproj", "{10DAEC46-6C89-4D83-812B-25EF039AA182}"
 EndProject
@@ -10,6 +10,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartManagement.DataLogic", "..\CartManagement.DataLogic\CartManagement.DataLogic.csproj", "{697DF080-5280-48CC-AD02-AEDE83561259}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartManagement.BusinessLogic", "..\CartManagement.BusinessLogic\CartManagement.BusinessLogic.csproj", "{8B246208-46B2-4A38-969E-7F1DB71525F2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{95643290-AE04-4D6E-AC05-71EF7D535FB7}"
+	ProjectSection(SolutionItems) = preProject
+		CHANGELOG.md = CHANGELOG.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

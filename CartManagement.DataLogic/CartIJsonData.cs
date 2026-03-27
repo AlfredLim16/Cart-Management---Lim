@@ -11,11 +11,13 @@ namespace CartManagementDataLogic
     {
         private List<Cart> carts = new List<Cart>();
         private string _jsonFileName;
+        
         public CartJsonData()
         {
             _jsonFileName = $"{AppDomain.CurrentDomain.BaseDirectory}/Carts.json";
             PopulateJsonFile();
         }
+
         private void PopulateJsonFile()
         {
             RetrieveDataFromJsonFile();
@@ -23,7 +25,6 @@ namespace CartManagementDataLogic
             {
                 carts.Add(new Cart
                 {
-                    CartId = Guid.NewGuid(),
                     Items = new List<CartItem>
                     {
                         new CartItem { CartItemId = Guid.NewGuid(), ProductName = "Laptop", Quantity = 1, Price = 45000m },
@@ -35,6 +36,7 @@ namespace CartManagementDataLogic
                 SaveDataToJsonFile();
             }
         }
+
         private void SaveDataToJsonFile()
         {
             using (var outputStream = File.Create(_jsonFileName))
@@ -43,6 +45,7 @@ namespace CartManagementDataLogic
                     new Utf8JsonWriter(outputStream, new JsonWriterOptions { SkipValidation = true, Indented = true }), carts);
             }
         }
+
         private void RetrieveDataFromJsonFile()
         {
             if (!File.Exists(_jsonFileName))
@@ -55,126 +58,116 @@ namespace CartManagementDataLogic
                 this.carts = JsonSerializer.Deserialize<List<Cart>>(jsonFileReader.ReadToEnd(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })?.ToList() ?? new List<Cart>();
             }
         }
+
         public Cart Create(Cart cart)
         {
             carts.Add(cart);
             SaveDataToJsonFile();
             return cart;
         }
+
         public Cart? Get(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
-            {
-                return cart;
-            }
-            return null;
+            return carts.FirstOrDefault(c => c.CartId == cartId);
         }
+
         public List<Cart> GetAll()
         {
             RetrieveDataFromJsonFile();
             return carts;
         }
+
         public void Update(Cart cart)
         {
             RetrieveDataFromJsonFile();
-            var existingQuery = from existing in carts where existing.CartId == cart.CartId select existing;
-            foreach (var existing in existingQuery)
+            var existingCart = Get(cart.CartId);
+            if(existingCart != null)
             {
-                existing.Items = cart.Items;
-                existing.Threshold = cart.Threshold;
+                existingCart.Items = cart.Items;
+                existingCart.Threshold = cart.Threshold;
                 SaveDataToJsonFile();
-                break;
             }
         }
+
         public void Delete(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            Cart? toRemove = null;
-            foreach (var cart in cartQuery)
-            {
-                toRemove = cart;
-                break;
-            }
-            if (toRemove != null)
+            var toRemove = Get(cartId);
+            if(toRemove != null)
             {
                 carts.Remove(toRemove);
-                SaveDataToJsonFile();
+                SaveDataToJsonFile();          
             }
         }
+
         public void Clear(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cartQuery = Get(cartId);
+            if(cartQuery != null)
             {
-                cart.Items.Clear();
+                cartQuery.Items.Clear();
                 SaveDataToJsonFile();
-                break;
             }
         }
+
         public void AddItem(Guid cartId, CartItem item)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 cart.Items.Add(item);
                 SaveDataToJsonFile();
-                break;
             }
         }
+
         public void RemoveItem(Guid cartId, Guid cartItemId)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
-                var cartItemQuery = from cartItem in cart.Items where cartItem.CartItemId == cartItemId select cartItem;
-                CartItem? toRemove = null;
-                foreach (var cartItem in cartItemQuery)
-                {
-                    toRemove = cartItem;
-                    break;
-                }
-                if (toRemove != null)
+                var toRemove = cart.Items.FirstOrDefault(i => i.CartItemId == cartItemId);
+                if(toRemove != null)
                 {
                     cart.Items.Remove(toRemove);
                     SaveDataToJsonFile();
                 }
-                break;
             }
         }
+
         public List<CartItem> GetItems(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartItemsQuery = from cart in carts where cart.CartId == cartId select cart.Items;
-            foreach (var cartItems in cartItemsQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
-                return cartItems;
+                return cart.Items;
             }
             return new List<CartItem>();
         }
+
         public int GetItemCount(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartItemCountQuery = from cart in carts where cart.CartId == cartId select cart.Items.Count;
-            foreach (var itemCount in cartItemCountQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
-                return itemCount;
+                return cart.Items.Count;
             }
             return 0;
         }
+
         public decimal GetTotal(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartItemsQuery = from cart in carts where cart.CartId == cartId select cart.Items;
-            foreach (var cartItems in cartItemsQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 decimal total = 0;
-                foreach (var cartItem in cartItems)
+                foreach(var cartItem in cart.Items)
                 {
                     total += cartItem.Price * cartItem.Quantity;
                 }
@@ -182,13 +175,14 @@ namespace CartManagementDataLogic
             }
             return 0;
         }
+
         public bool ContainsItem(Guid cartId, Guid cartItemId)
         {
             RetrieveDataFromJsonFile();
-            var cartItemsQuery = from cart in carts where cart.CartId == cartId select cart.Items;
-            foreach (var cartItems in cartItemsQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
-                foreach (var cartItem in cartItems)
+                foreach(var cartItem in cart.Items)
                 {
                     if (cartItem.CartItemId == cartItemId)
                     {
@@ -198,57 +192,61 @@ namespace CartManagementDataLogic
             }
             return false;
         }
+
         public bool IsEmpty(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartItemsQuery = from cart in carts where cart.CartId == cartId select cart.Items;
-            foreach (var cartItems in cartItemsQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
-                return cartItems.Count == 0;
+                return cart.Items.Count == 0;
             }
             return true;
         }
+
         public byte GetThreshold(Guid cartId)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 int currentCount = cart.Items.Count;
                 return (byte)Math.Max(0, cart.Threshold - currentCount);
             }
             return 0;
         }
-        public void SetThreshold(Guid cartId, byte threshold)
+
+        public void SetThreshold(Guid cartId, short threshold)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 cart.Threshold = threshold;
                 SaveDataToJsonFile();
-                break;
             }
         }
+
         public bool WithinThreshold(Guid cartId, CartItem item)
         {
             RetrieveDataFromJsonFile();
-            var cartQuery = from cart in carts where cart.CartId == cartId select cart;
-            foreach (var cart in cartQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 int currentCount = cart.Items.Count;
                 return currentCount + 1 <= cart.Threshold;
             }
             return false;
         }
+
         public List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds)
         {
             RetrieveDataFromJsonFile();
-            var cartItemsQuery = from cart in carts where cart.CartId == cartId select cart.Items;
-            foreach (var cartItems in cartItemsQuery)
+            var cart = Get(cartId);
+            if(cart != null)
             {
                 List<CartItem> selectedCartItems = new List<CartItem>();
-                foreach (var cartItem in cartItems)
+                foreach(var cartItem in cart.Items)
                 {
                     if (cartItemIds.Contains(cartItem.CartItemId))
                     {
@@ -259,15 +257,17 @@ namespace CartManagementDataLogic
             }
             return new List<CartItem>();
         }
+
         public decimal GetSelectedTotal(Guid cartId, List<Guid> cartItemIds)
         {
             var selectedItems = GetSelectedItems(cartId, cartItemIds);
             decimal total = 0;
-            foreach (var cartItem in selectedItems)
+            foreach(var cartItem in selectedItems)
             {
                 total += cartItem.Price * cartItem.Quantity;
             }
             return total;
         }
+
     }
 }

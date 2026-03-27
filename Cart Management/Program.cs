@@ -16,27 +16,27 @@ namespace CartManagementApp
         private static void Main(string[] args)
         {
             Setup();
-            RunMenu();
+            Run();
         }
         private static void Setup()
         {
-            ICartDataLogic dataLogic = new InMemoryCartData();
+            ICartDataLogic dataLogic = new CartDBData();
             CartRules cartRules = new CartRules();
             CartManager cartManager = new CartManager(dataLogic, cartRules);
             cartService = new CartService(cartManager);
             cart = cartService.GetAll().FirstOrDefault();
         }
-        private static void RunMenu()
+        private static void Run()
         {
             bool exit = false;
             while (!exit)
             {
-                ShowMenu();
+                Menu();
                 string choice = Console.ReadLine() ?? "";
-                MenuChoices(choice, ref exit);
+                Choices(choice, ref exit);
             }
         }
-        private static void ShowMenu()
+        private static void Menu()
         {
             Console.WriteLine("\nCart Menu");
             Console.WriteLine("1. View Cart");
@@ -48,7 +48,7 @@ namespace CartManagementApp
             Console.WriteLine("0. Exit");
             Console.Write("Choose an option(0 - 6): ");
         }
-        private static void MenuChoices(string choice, ref bool exit)
+        private static void Choices(string choice, ref bool exit)
         {
             switch (choice)
             {

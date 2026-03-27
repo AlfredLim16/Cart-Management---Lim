@@ -26,7 +26,7 @@ namespace CartManagementDataLogic
         bool IsEmpty(Guid cartId);
 
         byte GetThreshold(Guid cartId);
-        void SetThreshold(Guid cartId, byte threshold);
+        void SetThreshold(Guid cartId, short threshold);
         bool WithinThreshold(Guid cartId, CartItem item);
 
         List<CartItem> GetSelectedItems(Guid cartId, List<Guid> cartItemIds);
