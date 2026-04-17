@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Cart_Management.DataService</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -11,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CartManagement.Models\CartManagement.Models.csproj" />
+    <ProjectReference Include="..\Cart Management.Core\Cart Management.Core.csproj" />
   </ItemGroup>
 
 </Project>

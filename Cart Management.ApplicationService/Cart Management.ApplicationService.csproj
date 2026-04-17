@@ -1,20 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>Cart_Management</RootNamespace>
+    <RootNamespace>Cart_Management.ApplicationService</RootNamespace>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Cart Management.ApplicationService\Cart Management.ApplicationService.csproj" />
+    <ProjectReference Include="..\Cart Management.Core\Cart Management.Core.csproj" />
     <ProjectReference Include="..\Cart Management.DataService\Cart Management.DataService.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Backup\" />
   </ItemGroup>
 
 </Project>

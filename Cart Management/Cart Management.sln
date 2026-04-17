@@ -5,17 +5,11 @@ VisualStudioVersion = 18.3.11520.95
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart Management", "Cart Management.csproj", "{10DAEC46-6C89-4D83-812B-25EF039AA182}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartManagement.Models", "..\CartManagement.Models\CartManagement.Models.csproj", "{DB58FDE3-84FF-40F4-97D9-CA97B563B472}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart Management.Core", "..\Cart Management.Core\Cart Management.Core.csproj", "{081C6E14-B332-4D44-AEF2-EC7FEB0D5485}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartManagement.DataLogic", "..\CartManagement.DataLogic\CartManagement.DataLogic.csproj", "{697DF080-5280-48CC-AD02-AEDE83561259}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart Management.DataService", "..\Cart Management.DataService\Cart Management.DataService.csproj", "{9D91F6FC-047A-4F50-9080-A1AA24664B3A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CartManagement.BusinessLogic", "..\CartManagement.BusinessLogic\CartManagement.BusinessLogic.csproj", "{8B246208-46B2-4A38-969E-7F1DB71525F2}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{95643290-AE04-4D6E-AC05-71EF7D535FB7}"
-	ProjectSection(SolutionItems) = preProject
-		CHANGELOG.md = CHANGELOG.md
-		README.md = README.md
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cart Management.ApplicationService", "..\Cart Management.ApplicationService\Cart Management.ApplicationService.csproj", "{0B6D2C5F-957A-4A5A-B829-B1A229C7C8C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,18 +21,18 @@ Global
 		{10DAEC46-6C89-4D83-812B-25EF039AA182}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10DAEC46-6C89-4D83-812B-25EF039AA182}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10DAEC46-6C89-4D83-812B-25EF039AA182}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DB58FDE3-84FF-40F4-97D9-CA97B563B472}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DB58FDE3-84FF-40F4-97D9-CA97B563B472}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DB58FDE3-84FF-40F4-97D9-CA97B563B472}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DB58FDE3-84FF-40F4-97D9-CA97B563B472}.Release|Any CPU.Build.0 = Release|Any CPU
-		{697DF080-5280-48CC-AD02-AEDE83561259}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{697DF080-5280-48CC-AD02-AEDE83561259}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{697DF080-5280-48CC-AD02-AEDE83561259}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{697DF080-5280-48CC-AD02-AEDE83561259}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B246208-46B2-4A38-969E-7F1DB71525F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B246208-46B2-4A38-969E-7F1DB71525F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B246208-46B2-4A38-969E-7F1DB71525F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B246208-46B2-4A38-969E-7F1DB71525F2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{081C6E14-B332-4D44-AEF2-EC7FEB0D5485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{081C6E14-B332-4D44-AEF2-EC7FEB0D5485}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{081C6E14-B332-4D44-AEF2-EC7FEB0D5485}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{081C6E14-B332-4D44-AEF2-EC7FEB0D5485}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D91F6FC-047A-4F50-9080-A1AA24664B3A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D91F6FC-047A-4F50-9080-A1AA24664B3A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D91F6FC-047A-4F50-9080-A1AA24664B3A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D91F6FC-047A-4F50-9080-A1AA24664B3A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B6D2C5F-957A-4A5A-B829-B1A229C7C8C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B6D2C5F-957A-4A5A-B829-B1A229C7C8C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B6D2C5F-957A-4A5A-B829-B1A229C7C8C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B6D2C5F-957A-4A5A-B829-B1A229C7C8C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
